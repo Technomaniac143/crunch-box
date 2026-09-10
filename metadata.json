@@ -1,0 +1,6 @@
+{
+  "name": "Crunch Box",
+  "description": "Crunch Box: Hot, crispy French fries, loaded savoury crates, midnight combos, and 20-minute delivery.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
