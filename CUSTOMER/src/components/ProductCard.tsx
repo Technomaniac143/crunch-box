@@ -25,7 +25,7 @@ function Pills({
           role="radio"
           aria-checked={value === o}
           onClick={() => onChange(o)}
-          className="rounded-full border px-2.5 py-1 text-xs font-medium transition aria-checked:border-primary aria-checked:bg-primary aria-checked:text-primary-foreground hover:border-primary"
+          className="rounded-full border px-3 py-1 text-xs font-medium transition-all duration-150 active:scale-90 touch-manipulation aria-checked:border-primary aria-checked:bg-primary aria-checked:text-primary-foreground hover:border-primary"
         >
           {o}
         </button>

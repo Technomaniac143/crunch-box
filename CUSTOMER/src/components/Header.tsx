@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingCart, X, ChefHat } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, ChefHat, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Logo } from "./Logo";
 import { useCart } from "@/lib/cart";
 import { Magnet } from "./reactbits/Magnet";
@@ -24,11 +25,26 @@ export function CartBadge() {
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+    } else {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+      document.body.style.touchAction = "";
+    };
   }, [open]);
 
   const submit = (e: React.FormEvent) => {
@@ -37,9 +53,13 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 border-b bg-background/90 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-2 lg:flex lg:justify-between">
-        <button className="p-2 lg:hidden" aria-label="Open menu" onClick={() => setOpen(true)}>
+        <button
+          className="p-2.5 rounded-xl text-foreground hover:bg-muted active:scale-90 transition-transform lg:hidden touch-manipulation"
+          aria-label="Open menu"
+          onClick={() => setOpen(true)}
+        >
           <Menu className="h-6 w-6" />
         </button>
         <div className="flex justify-center lg:justify-start">
@@ -57,7 +77,7 @@ export function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <form onSubmit={submit} className="relative hidden xl:block" role="search">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
@@ -65,20 +85,18 @@ export function Header() {
               onChange={(e) => setQ(e.target.value)}
               placeholder="Search for your favorites..."
               aria-label="Search menu"
-              className="h-10 w-60 rounded-full border bg-card pl-9 pr-4 text-sm outline-none focus:border-primary"
+              className="h-10 w-60 rounded-full border bg-card pl-9 pr-4 text-sm outline-none focus:border-primary transition-all"
             />
           </form>
-          <a
-            href="http://localhost:8081/kitchen"
-            target="_blank"
-            rel="noreferrer"
+          <Link
+            to="/kitchen"
             title="Open Kitchen Staff Dashboard"
-            className="hidden md:inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+            className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 active:scale-95 transition-all"
           >
             <ChefHat className="h-3.5 w-3.5" />
             <span>Kitchen KDS</span>
-          </a>
-          <Link to="/cart" aria-label="Cart" className="relative p-1">
+          </Link>
+          <Link to="/cart" aria-label="Cart" className="relative p-2 rounded-xl hover:bg-muted active:scale-90 transition-transform">
             <ShoppingCart className="h-6 w-6" />
             <CartBadge />
           </Link>
@@ -93,71 +111,96 @@ export function Header() {
         </div>
       </div>
 
-      {open && (
-        <div
-          className="fixed inset-0 z-50 lg:hidden"
-          role="dialog"
-          aria-modal="true"
-          aria-label="Navigation"
-        >
-          <div className="absolute inset-0 bg-foreground/40" onClick={() => setOpen(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col gap-6 bg-background p-6 animate-in slide-in-from-left">
-            <div className="flex items-center justify-between">
-              <Logo size="sm" />
-              <button aria-label="Close menu" onClick={() => setOpen(false)} className="p-2">
-                <X className="h-6 w-6" />
-              </button>
-            </div>
-            <form
-              onSubmit={(e) => {
-                submit(e);
-                setOpen(false);
-              }}
-              role="search"
-              className="relative"
+      {/* Solid, Isolated Fullscreen Mobile Menu Drawer */}
+      {mounted &&
+        open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[100] lg:hidden"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Navigation Menu"
+          >
+            {/* Dark blurred backdrop */}
+            <div
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm animate-backdrop-fade transition-opacity"
+              onClick={() => setOpen(false)}
+            />
+
+            {/* Solid Drawer Content with Opaque Background */}
+            <div
+              className="fixed inset-y-0 left-0 flex w-[85vw] max-w-xs flex-col bg-[#FFFCF7] text-[#24130D] shadow-2xl animate-drawer-left border-r border-[#EADAC8] z-10 overflow-y-auto"
+              style={{ backgroundColor: "#FFFCF7", color: "#24130D" }}
             >
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <input
-                value={q}
-                onChange={(e) => setQ(e.target.value)}
-                placeholder="Search menu..."
-                aria-label="Search menu"
-                className="h-11 w-full rounded-full border bg-card pl-9 pr-4 text-sm outline-none focus:border-primary"
-              />
-            </form>
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((l) => (
-                <Link
-                  key={l.to}
-                  to={l.to}
+              <div className="flex items-center justify-between border-b border-[#EADAC8]/70 p-5 bg-[#FAF5EE]">
+                <Logo size="sm" />
+                <button
+                  aria-label="Close menu"
                   onClick={() => setOpen(false)}
-                  activeOptions={{ exact: l.to === "/" }}
-                  className="rounded-lg px-3 py-3 font-display text-lg uppercase data-[status=active]:bg-secondary data-[status=active]:text-primary"
+                  className="grid h-10 w-10 place-items-center rounded-full bg-white border border-[#EADAC8] text-[#24130D] shadow-sm active:scale-90 transition-all touch-manipulation"
                 >
-                  {l.label}
-                </Link>
-              ))}
-            </nav>
-            <a
-              href="http://localhost:8081/kitchen"
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => setOpen(false)}
-              className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 py-2.5 text-center font-display text-sm uppercase text-primary hover:bg-primary/10 transition-colors"
-            >
-              <ChefHat className="h-4 w-4" />
-              Staff Kitchen KDS ↗
-            </a>
-            <Link
-              to="/menu"
-              onClick={() => setOpen(false)}
-              className="rounded-lg bg-primary py-3 text-center font-display uppercase text-primary-foreground"
-            >
-              Order Now
-            </Link>
-          </div>
-        </div>
-      )}
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              <div className="flex flex-1 flex-col gap-5 p-5">
+                <form
+                  onSubmit={(e) => {
+                    submit(e);
+                    setOpen(false);
+                  }}
+                  role="search"
+                  className="relative"
+                >
+                  <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-[#716963]" />
+                  <input
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                    placeholder="Search menu..."
+                    aria-label="Search menu"
+                    className="h-11 w-full rounded-xl border border-[#EADAC8] bg-white pl-10 pr-4 text-sm text-[#24130D] placeholder-[#716963] outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  />
+                </form>
+
+                <nav className="flex flex-col gap-1.5" aria-label="Mobile Navigation">
+                  {navLinks.map((l) => (
+                    <Link
+                      key={l.to}
+                      to={l.to}
+                      onClick={() => setOpen(false)}
+                      activeOptions={{ exact: l.to === "/" }}
+                      className="flex items-center justify-between rounded-xl px-4 py-3.5 font-display text-lg uppercase tracking-wide text-[#24130D] hover:bg-white active:scale-[0.98] active:bg-[#F3E8DB] transition-all data-[status=active]:bg-primary data-[status=active]:text-primary-foreground data-[status=active]:shadow-sm"
+                    >
+                      <span>{l.label}</span>
+                      <span className="text-xs opacity-40">→</span>
+                    </Link>
+                  ))}
+                </nav>
+
+                <div className="mt-auto space-y-3 pt-4 border-t border-[#EADAC8]/70">
+                  <Link
+                    to="/kitchen"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary/25 bg-primary/5 py-3.5 text-center font-display text-sm uppercase tracking-wider text-primary hover:bg-primary/10 active:scale-[0.98] transition-all font-semibold"
+                  >
+                    <ChefHat className="h-4 w-4" />
+                    <span>Staff Kitchen KDS</span>
+                  </Link>
+
+                  <Link
+                    to="/menu"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-center font-display text-sm uppercase tracking-wider text-primary-foreground shadow-md hover:brightness-110 active:scale-[0.98] transition-all"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span>Order Now</span>
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
     </header>
   );
 }

@@ -50,7 +50,7 @@ export function ComboCard({ product }: { product: Product }) {
             });
             toast.success(`${product.name} added`);
           }}
-          className="flex items-center gap-1 rounded-lg bg-primary px-4 py-2.5 font-display uppercase text-primary-foreground transition hover:brightness-110 active:scale-95"
+          className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 font-display text-sm uppercase tracking-wide text-primary-foreground shadow-sm transition-all duration-150 hover:brightness-110 active:scale-95 touch-manipulation font-semibold"
         >
           Add Combo <Plus className="h-4 w-4" />
         </button>

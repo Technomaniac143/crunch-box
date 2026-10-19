@@ -88,16 +88,13 @@ export function Footer() {
             </div>
           )}
           <div className="pt-2">
-            <a
-              href="http://localhost:8081/kitchen"
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/25 transition-all shadow-sm"
+            <Link
+              to="/kitchen"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/25 active:scale-95 transition-all shadow-sm"
             >
               <ChefHat className="h-3.5 w-3.5" />
               <span>Staff Kitchen Dashboard</span>
-              <ExternalLink className="h-3 w-3 ml-0.5 opacity-80" />
-            </a>
+            </Link>
           </div>
         </div>
       </div>
@@ -111,15 +108,13 @@ export function Footer() {
             <Link to="/terms" className="hover:text-accent">
               Terms &amp; Conditions
             </Link>
-            <a
-              href="http://localhost:8081/kitchen"
-              target="_blank"
-              rel="noreferrer"
-              className="hover:text-accent flex items-center gap-1 font-semibold text-accent"
+            <Link
+              to="/kitchen"
+              className="hover:text-accent flex items-center gap-1 font-semibold text-accent active:scale-95 transition-all"
             >
               <ChefHat className="h-3.5 w-3.5" />
               Kitchen KDS ↗
-            </a>
+            </Link>
           </div>
         </div>
       </div>

@@ -20,7 +20,7 @@ export function CategoryNavigation({
 }) {
   return (
     <div
-      className="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4 py-1"
+      className="no-scrollbar mobile-scroll-snap -mx-4 flex gap-2.5 overflow-x-auto px-4 py-1.5 scroll-smooth touch-manipulation select-none"
       role="tablist"
       aria-label="Categories"
     >
@@ -32,10 +32,17 @@ export function CategoryNavigation({
             key={c.id}
             role="tab"
             aria-selected={on}
-            onClick={() => onChange(c.id)}
-            className="flex shrink-0 items-center gap-2 rounded-xl border bg-card px-4 py-3 text-sm font-semibold shadow-card transition hover:border-primary aria-selected:border-primary aria-selected:bg-primary aria-selected:text-primary-foreground"
+            onClick={(e) => {
+              onChange(c.id);
+              (e.currentTarget as HTMLElement).scrollIntoView({
+                behavior: "smooth",
+                inline: "center",
+                block: "nearest",
+              });
+            }}
+            className="flex shrink-0 items-center gap-2 rounded-xl border bg-card px-4 py-2.5 text-sm font-semibold shadow-sm transition-all duration-150 active:scale-92 touch-manipulation hover:border-primary aria-selected:border-primary aria-selected:bg-primary aria-selected:text-primary-foreground aria-selected:shadow-md"
           >
-            <Icon className="h-5 w-5" strokeWidth={1.75} />
+            <Icon className="h-4.5 w-4.5" strokeWidth={on ? 2.2 : 1.75} />
             {c.label}
           </button>
         );
