@@ -3,13 +3,19 @@
   "private": true,
   "version": "1.0.0",
   "description": "Crunch Box Food Ordering & Kitchen KDS Ecosystem",
+  "workspaces": [
+    "CUSTOMER",
+    "KITCHEN"
+  ],
   "scripts": {
     "dev": "npm run dev --prefix CUSTOMER",
     "dev:customer": "npm run dev --prefix CUSTOMER -- --port 8080",
     "dev:kitchen": "npm run dev --prefix KITCHEN -- --port 8081",
-    "build": "npm run build --prefix CUSTOMER",
+    "build": "node scripts/build-vercel.mjs",
+    "build:customer": "npm run build --prefix CUSTOMER",
     "build:kitchen": "npm run build --prefix KITCHEN",
     "build:all": "npm run build --prefix CUSTOMER && npm run build --prefix KITCHEN",
-    "test": "npm test --prefix CUSTOMER -- --run && npm test --prefix KITCHEN -- --run"
+    "test": "npm test --prefix CUSTOMER -- --run && npm test --prefix KITCHEN -- --run",
+    "smoke-test": "node smoke-test.mjs"
   }
 }

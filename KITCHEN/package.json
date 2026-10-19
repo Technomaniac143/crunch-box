@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "@crunch-box/kitchen",
   "private": true,
   "sideEffects": false,
   "type": "module",

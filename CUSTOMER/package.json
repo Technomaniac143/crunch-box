@@ -1,5 +1,5 @@
 {
-  "name": "tanstack_start_ts",
+  "name": "@crunch-box/customer",
   "private": true,
   "sideEffects": false,
   "type": "module",
@@ -80,6 +80,7 @@
     "@types/node": "^22.16.5",
     "@types/react": "^19.2.0",
     "@types/react-dom": "^19.2.0",
+    "@vercel/nft": "^1.11.0",
     "@vitejs/plugin-react": "^5.2.0",
     "eslint": "^9.32.0",
     "eslint-config-prettier": "^10.1.1",
