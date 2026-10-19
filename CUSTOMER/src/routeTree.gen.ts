@@ -15,7 +15,6 @@ import { Route as CartRouteImport } from './routes/cart'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as CombosRouteImport } from './routes/combos'
 import { Route as ContactRouteImport } from './routes/contact'
-import { Route as KitchenRouteImport } from './routes/kitchen'
 import { Route as MenuRouteImport } from './routes/menu'
 import { Route as OrderSuccessRouteImport } from './routes/order-success'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -52,11 +51,6 @@ const ContactRoute = ContactRouteImport.update({
   path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const KitchenRoute = KitchenRouteImport.update({
-  id: '/kitchen',
-  path: '/kitchen',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const MenuRoute = MenuRouteImport.update({
   id: '/menu',
   path: '/menu',
@@ -90,7 +84,6 @@ export interface FileRoutesByFullPath {
   '/checkout': typeof CheckoutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
-  '/kitchen': typeof KitchenRoute
   '/menu': typeof MenuRoute
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
@@ -104,7 +97,6 @@ export interface FileRoutesByTo {
   '/checkout': typeof CheckoutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
-  '/kitchen': typeof KitchenRoute
   '/menu': typeof MenuRoute
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
@@ -119,7 +111,6 @@ export interface FileRoutesById {
   '/checkout': typeof CheckoutRoute
   '/combos': typeof CombosRoute
   '/contact': typeof ContactRoute
-  '/kitchen': typeof KitchenRoute
   '/menu': typeof MenuRoute
   '/order-success': typeof OrderSuccessRoute
   '/privacy': typeof PrivacyRoute
@@ -135,7 +126,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/combos'
     | '/contact'
-    | '/kitchen'
     | '/menu'
     | '/order-success'
     | '/privacy'
@@ -149,7 +139,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/combos'
     | '/contact'
-    | '/kitchen'
     | '/menu'
     | '/order-success'
     | '/privacy'
@@ -163,7 +152,6 @@ export interface FileRouteTypes {
     | '/checkout'
     | '/combos'
     | '/contact'
-    | '/kitchen'
     | '/menu'
     | '/order-success'
     | '/privacy'
@@ -178,7 +166,6 @@ export interface RootRouteChildren {
   CheckoutRoute: typeof CheckoutRoute
   CombosRoute: typeof CombosRoute
   ContactRoute: typeof ContactRoute
-  KitchenRoute: typeof KitchenRoute
   MenuRoute: typeof MenuRoute
   OrderSuccessRoute: typeof OrderSuccessRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -230,13 +217,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ContactRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/kitchen': {
-      id: '/kitchen'
-      path: '/kitchen'
-      fullPath: '/kitchen'
-      preLoaderRoute: typeof KitchenRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/menu': {
       id: '/menu'
       path: '/menu'
@@ -282,7 +262,6 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutRoute: CheckoutRoute,
   CombosRoute: CombosRoute,
   ContactRoute: ContactRoute,
-  KitchenRoute: KitchenRoute,
   MenuRoute: MenuRoute,
   OrderSuccessRoute: OrderSuccessRoute,
   PrivacyRoute: PrivacyRoute,

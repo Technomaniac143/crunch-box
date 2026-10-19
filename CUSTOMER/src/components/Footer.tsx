@@ -3,7 +3,7 @@ import { site } from "@/data/site";
 import { categories } from "@/data/menu";
 import { navLinks } from "./Header";
 import { Logo } from "./Logo";
-import { ShieldCheck, ExternalLink, ChefHat } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 
 export function Footer() {
   const { phone, email, address } = site.contact;
@@ -87,15 +87,6 @@ export function Footer() {
               ))}
             </div>
           )}
-          <div className="pt-2">
-            <Link
-              to="/kitchen"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/25 active:scale-95 transition-all shadow-sm"
-            >
-              <ChefHat className="h-3.5 w-3.5" />
-              <span>Staff Kitchen Dashboard</span>
-            </Link>
-          </div>
         </div>
       </div>
       <div className="border-t border-brand-foreground/15">
@@ -107,13 +98,6 @@ export function Footer() {
             </Link>
             <Link to="/terms" className="hover:text-accent">
               Terms &amp; Conditions
-            </Link>
-            <Link
-              to="/kitchen"
-              className="hover:text-accent flex items-center gap-1 font-semibold text-accent active:scale-95 transition-all"
-            >
-              <ChefHat className="h-3.5 w-3.5" />
-              Kitchen KDS ↗
             </Link>
           </div>
         </div>

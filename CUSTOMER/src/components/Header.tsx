@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingCart, X, ChefHat, Sparkles } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Logo } from "./Logo";
@@ -88,14 +88,6 @@ export function Header() {
               className="h-10 w-60 rounded-full border bg-card pl-9 pr-4 text-sm outline-none focus:border-primary transition-all"
             />
           </form>
-          <Link
-            to="/kitchen"
-            title="Open Kitchen Staff Dashboard"
-            className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/10 active:scale-95 transition-all"
-          >
-            <ChefHat className="h-3.5 w-3.5" />
-            <span>Kitchen KDS</span>
-          </Link>
           <Link to="/cart" aria-label="Cart" className="relative p-2 rounded-xl hover:bg-muted active:scale-90 transition-transform">
             <ShoppingCart className="h-6 w-6" />
             <CartBadge />
@@ -177,20 +169,11 @@ export function Header() {
                   ))}
                 </nav>
 
-                <div className="mt-auto space-y-3 pt-4 border-t border-[#EADAC8]/70">
-                  <Link
-                    to="/kitchen"
-                    onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-xl border-2 border-primary/25 bg-primary/5 py-3.5 text-center font-display text-sm uppercase tracking-wider text-primary hover:bg-primary/10 active:scale-[0.98] transition-all font-semibold"
-                  >
-                    <ChefHat className="h-4 w-4" />
-                    <span>Staff Kitchen KDS</span>
-                  </Link>
-
+                <div className="mt-auto pt-4 border-t border-[#EADAC8]/70">
                   <Link
                     to="/menu"
                     onClick={() => setOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-center font-display text-sm uppercase tracking-wider text-primary-foreground shadow-md hover:brightness-110 active:scale-[0.98] transition-all"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-primary py-3.5 text-center font-display text-sm uppercase tracking-wider text-primary-foreground shadow-md hover:brightness-110 active:scale-[0.98] transition-all font-semibold"
                   >
                     <Sparkles className="h-4 w-4" />
                     <span>Order Now</span>
