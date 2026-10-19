@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingCart, X } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, ChefHat } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Logo } from "./Logo";
 import { useCart } from "@/lib/cart";
@@ -68,6 +68,16 @@ export function Header() {
               className="h-10 w-60 rounded-full border bg-card pl-9 pr-4 text-sm outline-none focus:border-primary"
             />
           </form>
+          <a
+            href="http://localhost:8081/kitchen"
+            target="_blank"
+            rel="noreferrer"
+            title="Open Kitchen Staff Dashboard"
+            className="hidden md:inline-flex items-center gap-1 rounded-full border border-primary/20 bg-primary/5 px-2.5 py-1 text-xs font-semibold text-primary hover:bg-primary/10 transition-colors"
+          >
+            <ChefHat className="h-3.5 w-3.5" />
+            <span>Kitchen KDS</span>
+          </a>
           <Link to="/cart" aria-label="Cart" className="relative p-1">
             <ShoppingCart className="h-6 w-6" />
             <CartBadge />
@@ -128,10 +138,20 @@ export function Header() {
                 </Link>
               ))}
             </nav>
+            <a
+              href="http://localhost:8081/kitchen"
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setOpen(false)}
+              className="mt-auto flex items-center justify-center gap-2 rounded-lg border border-primary/20 bg-primary/5 py-2.5 text-center font-display text-sm uppercase text-primary hover:bg-primary/10 transition-colors"
+            >
+              <ChefHat className="h-4 w-4" />
+              Staff Kitchen KDS ↗
+            </a>
             <Link
               to="/menu"
               onClick={() => setOpen(false)}
-              className="mt-auto rounded-lg bg-primary py-3 text-center font-display uppercase text-primary-foreground"
+              className="rounded-lg bg-primary py-3 text-center font-display uppercase text-primary-foreground"
             >
               Order Now
             </Link>

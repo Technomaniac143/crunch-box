@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, CreditCard, Banknote, Clock, AlertTriangle, Sparkles, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, CreditCard, Clock, AlertTriangle, Sparkles } from "lucide-react";
 import { inr } from "@/data/menu";
 import { site } from "@/data/site";
 import { useCart } from "@/lib/cart";
@@ -68,7 +68,6 @@ function Checkout() {
   const [f, setF] = useState<Form>({ name: "", phone: "", address: "", landmark: "", notes: "" });
   const [touched, setTouched] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [payMethod, setPayMethod] = useState<"direct" | "razorpay">("direct");
   const [businessStatus, setBusinessStatus] = useState<BusinessStatus | null>(null);
 
   useEffect(() => {
@@ -147,27 +146,7 @@ function Checkout() {
         // Ignore localStorage errors
       }
 
-      // 2. Direct Placement (Cash / UPI on Delivery) - Immediate confirmed placement
-      if (payMethod === "direct") {
-        toast.info("Sending order directly to kitchen...");
-        await verifyPaymentServerFn({
-          data: {
-            orderId: result.orderId,
-            accessToken: result.accessToken,
-            razorpayPaymentId: `direct_${Date.now()}`,
-            razorpayOrderId: result.razorpayOrderId,
-          },
-        });
-        clear();
-        toast.success("Order confirmed! Transmitted to kitchen.");
-        navigate({
-          to: "/order-success",
-          search: { order_id: result.orderId, token: result.accessToken },
-        });
-        return;
-      }
-
-      // 3. Razorpay Standard Web Checkout Flow
+      // 2. Razorpay Standard Web Checkout Flow
       if (!window.Razorpay) {
         await loadRazorpayScript();
       }
@@ -379,82 +358,27 @@ function Checkout() {
 
           <div className="pt-2 border-t">
             <h2 className="font-display text-xl font-bold">2. Payment Method</h2>
-            <div className="mt-3 grid gap-3">
-              {/* Option 1: Direct Payment / COD */}
-              <label
-                onClick={() => setPayMethod("direct")}
-                className={cn(
-                  "cursor-pointer rounded-2xl border-2 p-4 transition-all flex items-start justify-between gap-3",
-                  payMethod === "direct"
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border hover:border-primary/50 bg-card",
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
-                    <Banknote className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-sm">Pay on Delivery / Direct Confirmation</p>
-                      <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
-                        Active
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      Pay via Cash or UPI (GPay/PhonePe) directly to the delivery partner upon arrival.
-                    </p>
-                  </div>
-                </div>
-                <input
-                  type="radio"
-                  name="payMethod"
-                  value="direct"
-                  checked={payMethod === "direct"}
-                  onChange={() => setPayMethod("direct")}
-                  className="mt-1 h-4 w-4 accent-primary"
-                />
-              </label>
-
-              {/* Option 2: Razorpay Gateway */}
-              <label
-                onClick={() => setPayMethod("razorpay")}
-                className={cn(
-                  "cursor-pointer rounded-2xl border-2 p-4 transition-all flex items-start justify-between gap-3",
-                  payMethod === "razorpay"
-                    ? "border-primary bg-primary/5 shadow-sm"
-                    : "border-border hover:border-primary/50 bg-card",
-                )}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="mt-0.5 grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
+            <div className="mt-3 rounded-2xl border-2 border-primary bg-primary/5 p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground font-bold">
                     <CreditCard className="h-5 w-5" />
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-bold text-sm">Online Prepaid via Razorpay</p>
-                      <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
-                        Prepaid
-                      </span>
-                    </div>
-                    <p className="mt-0.5 text-xs text-muted-foreground">
-                      UPI, NetBanking, Debit/Credit Cards via Razorpay secure gateway.
+                    <p className="font-bold text-sm">Prepaid Online Payment</p>
+                    <p className="text-xs text-muted-foreground">
+                      UPI (GPay, PhonePe, Paytm), Cards & NetBanking
                     </p>
                   </div>
                 </div>
-                <input
-                  type="radio"
-                  name="payMethod"
-                  value="razorpay"
-                  checked={payMethod === "razorpay"}
-                  onChange={() => setPayMethod("razorpay")}
-                  className="mt-1 h-4 w-4 accent-primary"
-                />
-              </label>
-            </div>
-            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground border-t pt-2.5">
-              <ShieldCheck className="h-4 w-4 text-emerald-500" />
-              <span>Real-time live kitchen dispatch enabled with instant order tracking.</span>
+                <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold uppercase text-primary">
+                  Instant
+                </span>
+              </div>
+              <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground border-t border-primary/10 pt-2.5">
+                <ShieldCheck className="h-4 w-4 text-emerald-500" />
+                <span>Encrypted & verified via Razorpay secure checkout</span>
+              </div>
             </div>
           </div>
         </div>
@@ -498,10 +422,6 @@ function Checkout() {
               "Securing Order…"
             ) : !isStoreAvailable ? (
               "Ordering Paused"
-            ) : payMethod === "direct" ? (
-              <>
-                <CheckCircle2 className="h-4 w-4" /> Confirm Order ({inr(total)})
-              </>
             ) : (
               <>
                 <Sparkles className="h-4 w-4" /> Pay {inr(total)} Online

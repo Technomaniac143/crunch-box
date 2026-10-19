@@ -31,7 +31,7 @@ export const site = {
       "Villa No 14, Upper Deck Villa, Rajiv Gandhi Salai, Padur, Chengalpattu DT, Thiruporur block, Kancheepuram, Tamil Nadu - 603103",
   },
   social: [
-    { label: "Instagram", href: "https://instagram.com" },
+    { label: "Instagram", href: "https://www.instagram.com/crunchbox.in/" },
     { label: "WhatsApp", href: "https://wa.me/916369715501" },
   ],
 };

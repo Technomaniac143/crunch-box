@@ -3,7 +3,7 @@ import { site } from "@/data/site";
 import { categories } from "@/data/menu";
 import { navLinks } from "./Header";
 import { Logo } from "./Logo";
-import { ShieldCheck } from "lucide-react";
+import { ShieldCheck, ExternalLink, ChefHat } from "lucide-react";
 
 export function Footer() {
   const { phone, email, address } = site.contact;
@@ -87,18 +87,39 @@ export function Footer() {
               ))}
             </div>
           )}
+          <div className="pt-2">
+            <a
+              href="http://localhost:8081/kitchen"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-accent/40 bg-accent/15 px-3 py-1.5 text-xs font-semibold text-accent hover:bg-accent/25 transition-all shadow-sm"
+            >
+              <ChefHat className="h-3.5 w-3.5" />
+              <span>Staff Kitchen Dashboard</span>
+              <ExternalLink className="h-3 w-3 ml-0.5 opacity-80" />
+            </a>
+          </div>
         </div>
       </div>
       <div className="border-t border-brand-foreground/15">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs text-brand-foreground/70">
           <p>© {new Date().getFullYear()} Crunch Box (FSSAI Reg. {site.fssai.registrationNumber}). All rights reserved.</p>
-          <div className="flex gap-5">
+          <div className="flex items-center gap-5">
             <Link to="/privacy" className="hover:text-accent">
               Privacy Policy
             </Link>
             <Link to="/terms" className="hover:text-accent">
               Terms &amp; Conditions
             </Link>
+            <a
+              href="http://localhost:8081/kitchen"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-accent flex items-center gap-1 font-semibold text-accent"
+            >
+              <ChefHat className="h-3.5 w-3.5" />
+              Kitchen KDS ↗
+            </a>
           </div>
         </div>
       </div>
