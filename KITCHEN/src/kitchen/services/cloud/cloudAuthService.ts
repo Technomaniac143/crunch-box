@@ -17,17 +17,11 @@ export const authService = {
     }
     return { ok: true };
   },
-  async createKitchenAccount(
-    email: string,
-    password: string,
-  ): Promise<{ ok: true; needsConfirm: boolean } | { ok: false; error: string }> {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: { emailRedirectTo: `${window.location.origin}/login` },
-    });
-    if (error) return { ok: false, error: error.message };
-    return { ok: true, needsConfirm: !data.session };
+  async createKitchenAccount(): Promise<{ ok: false; error: string }> {
+    return {
+      ok: false,
+      error: "Self sign-up is disabled. Access is restricted to the authorized master kitchen account.",
+    };
   },
   async kitchenAccountExists(): Promise<boolean> {
     const { data } = await supabase.rpc("kitchen_account_exists");
