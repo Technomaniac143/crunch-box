@@ -22,6 +22,37 @@ import { supabase } from "@/integrations/supabase/client";
 import { Logo } from "@/components/Logo";
 
 export const Route = createFileRoute("/kitchen")({
+  ssr: false,
+  pendingComponent: () => (
+    <div className="grid min-h-[60vh] place-items-center text-center p-6 bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+        <p className="text-sm font-medium text-muted-foreground">Connecting to Kitchen Terminal…</p>
+      </div>
+    </div>
+  ),
+  errorComponent: ({ error, reset }) => (
+    <div className="min-h-[60vh] grid place-items-center px-4 py-12 text-center bg-background">
+      <div className="max-w-md rounded-3xl border border-border bg-card p-6 shadow-card space-y-4">
+        <div className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-destructive/10 text-destructive">
+          <AlertCircle className="h-6 w-6" />
+        </div>
+        <h2 className="font-display text-2xl font-bold uppercase text-foreground">
+          Kitchen Terminal Reconnect
+        </h2>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          {error instanceof Error ? error.message : "Unable to reach the live kitchen service right now."}
+        </p>
+        <button
+          onClick={() => reset()}
+          className="flex h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary font-display text-sm uppercase tracking-wider text-primary-foreground shadow-sm hover:brightness-110 active:scale-95 transition-all"
+        >
+          <RefreshCw className="h-4 w-4" />
+          <span>Reload Terminal</span>
+        </button>
+      </div>
+    </div>
+  ),
   head: () => ({
     meta: [
       { title: "Live Kitchen KDS & Staff Portal — Crunch Box" },
@@ -58,8 +89,11 @@ interface OrderRow {
 }
 
 function playKitchenChime() {
+  if (typeof window === "undefined") return;
   try {
-    const AudioContextClass = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextClass) return;
     const ctx = new AudioContextClass();
     const now = ctx.currentTime;
@@ -116,24 +150,39 @@ function KitchenPortalRoute() {
 
   // 1. Check existing session on load
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (data.session?.user) {
-        setUser({ id: data.session.user.id, email: data.session.user.email });
-      }
+    let mounted = true;
+    try {
+      supabase.auth
+        .getSession()
+        .then(({ data }) => {
+          if (!mounted) return;
+          if (data?.session?.user) {
+            setUser({ id: data.session.user.id, email: data.session.user.email });
+          }
+          setAuthChecking(false);
+        })
+        .catch((err) => {
+          console.error("Auth session check error:", err);
+          if (mounted) setAuthChecking(false);
+        });
+
+      const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+        if (!mounted) return;
+        if (session?.user) {
+          setUser({ id: session.user.id, email: session.user.email });
+        } else {
+          setUser(null);
+        }
+      });
+
+      return () => {
+        mounted = false;
+        authListener?.subscription?.unsubscribe();
+      };
+    } catch (e) {
+      console.error("Auth init exception:", e);
       setAuthChecking(false);
-    });
-
-    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session?.user) {
-        setUser({ id: session.user.id, email: session.user.email });
-      } else {
-        setUser(null);
-      }
-    });
-
-    return () => {
-      authListener.subscription.unsubscribe();
-    };
+    }
   }, []);
 
   // 2. Fetch Orders
@@ -149,6 +198,8 @@ function KitchenPortalRoute() {
       if (!error && data) {
         setOrders(data as OrderRow[]);
       }
+    } catch (e) {
+      console.error("Failed to fetch orders:", e);
     } finally {
       setLoadingOrders(false);
     }
@@ -159,25 +210,29 @@ function KitchenPortalRoute() {
     if (!user) return;
     fetchOrders();
 
-    const channel = supabase
-      .channel("kitchen-kds-feed")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "orders" },
-        (payload) => {
-          if (payload.eventType === "INSERT") {
-            if (soundRef.current) playKitchenChime();
-          }
-          fetchOrders();
-        },
-      )
-      .subscribe((status) => {
-        setRealtimeConnected(status === "SUBSCRIBED");
-      });
+    try {
+      const channel = supabase
+        .channel("kitchen-kds-feed")
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "orders" },
+          (payload) => {
+            if (payload.eventType === "INSERT") {
+              if (soundRef.current) playKitchenChime();
+            }
+            fetchOrders();
+          },
+        )
+        .subscribe((status) => {
+          setRealtimeConnected(status === "SUBSCRIBED");
+        });
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    } catch (e) {
+      console.error("Realtime subscription error:", e);
+    }
   }, [user, fetchOrders]);
 
   // Handle staff login
