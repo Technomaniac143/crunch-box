@@ -130,7 +130,7 @@ function KitchenPortalRoute() {
   const [authChecking, setAuthChecking] = useState(true);
 
   // Sign-in form state
-  const [email, setEmail] = useState("Kameshwaranbtc2022@gmail.com");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
@@ -342,7 +342,7 @@ function KitchenPortalRoute() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Kameshwaranbtc2022@gmail.com"
+                  placeholder="kitchen@crunchbox.in"
                   className="h-12 w-full rounded-xl border border-border bg-background px-4 text-sm font-medium outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   required
                 />
