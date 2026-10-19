@@ -165,12 +165,15 @@ function SuccessPage() {
           return;
         }
 
-        // 2. Direct select / RPC fallback
-        const { data: rawOrder } = await supabase
-          .from("orders")
-          .select("*, order_items(*)")
-          .eq("id", activeId!)
-          .maybeSingle();
+        // 2. Direct select / RPC fallback safely
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(activeId!);
+        let query = supabase.from("orders").select("*, order_items(*)");
+        if (isUuid) {
+          query = query.eq("id", activeId!);
+        } else {
+          query = query.eq("order_number", activeId!);
+        }
+        const { data: rawOrder } = await query.maybeSingle();
 
         if (rawOrder) {
           const formatted: TrackedOrder = {

@@ -193,13 +193,16 @@ export function createProductionOrderService(): KitchenOrderService {
       );
     },
     async getOrder(id: string): Promise<Order | null> {
-      // 1. Try Supabase
+      // 1. Try Supabase safely without throwing 22P02 on order_number
       try {
-        const { data, error } = await supabase
-          .from("orders")
-          .select("*, order_items(*), order_status_events(*)")
-          .or(`id.eq.${id},order_number.eq.${id}`)
-          .maybeSingle();
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        let query = supabase.from("orders").select("*, order_items(*), order_status_events(*)");
+        if (isUuid) {
+          query = query.eq("id", id);
+        } else {
+          query = query.eq("order_number", id);
+        }
+        const { data, error } = await query.maybeSingle();
 
         if (!error && data) {
           return mapDbOrder(data, data.order_items || [], data.order_status_events || []);
@@ -241,24 +244,26 @@ export function createProductionOrderService(): KitchenOrderService {
         updateData.refund_amount_paise = Math.round(existing.total * 100);
       }
 
+      const targetId = existing.id;
+
       // 1. Update in Supabase
       try {
         const { data, error } = await supabase
           .from("orders")
           .update(updateData)
-          .eq("id", id)
+          .eq("id", targetId)
           .select("*, order_items(*), order_status_events(*)")
           .single();
 
         if (!error && data) {
           await supabase.from("order_status_events").insert({
-            order_id: id,
+            order_id: targetId,
             status: to,
           });
 
           // Sync shared file
           try {
-            await updateSharedOrderStatus({ orderId: id, status: to });
+            await updateSharedOrderStatus({ orderId: targetId, status: to });
           } catch {}
 
           const updated = mapDbOrder(data, data.order_items || [], [
