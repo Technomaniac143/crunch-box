@@ -1,9 +1,19 @@
 node_modules/
-build/
 dist/
-coverage/
-.DS_Store
-*.log
-.env*
-!.env.example
+.output/
+.nitro/
+.tanstack/
 .vercel/
+.wrangler/
+
+# Environment variables
+.env
+.env.*
+!.env.example
+*.local
+
+# Logs and OS files
+logs/
+*.log
+.DS_Store
+Thumbs.db

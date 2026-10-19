@@ -1,0 +1,34 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1792185316118,
+      "tag": "0000_kitchen_menu",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1792185345525,
+      "tag": "0001_menu_images_policies",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792187336818,
+      "tag": "0002_editable_delivery_fee",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1792200000000,
+      "tag": "0003_orders_and_business_settings",
+      "breakpoints": true
+    }
+  ]
+}
