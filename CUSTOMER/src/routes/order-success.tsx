@@ -165,8 +165,42 @@ function SuccessPage() {
           return;
         }
 
-        // 2. Direct select / RPC fallback safely
+        // 2. Direct RPC fallback using customer access token
         const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(activeId!);
+        if (isUuid && activeToken) {
+          try {
+            const { data: rpcData } = await supabase.rpc("get_customer_order", {
+              p_order_id: activeId!,
+              p_access_token: activeToken,
+            });
+            const rpcOrder = rpcData as Record<string, any> | null;
+            if (rpcOrder && rpcOrder["id"]) {
+              const formatted: TrackedOrder = {
+                id: rpcOrder["id"],
+                order_number: rpcOrder["order_number"] || "CB-ORDER",
+                status: (rpcOrder["status"] || "new") as OrderStatus,
+                payment_status: rpcOrder["payment_status"] || "paid",
+                customer_name: rpcOrder["customer_name"] || "Customer",
+                customer_phone: rpcOrder["customer_phone"] || "",
+                delivery_address: rpcOrder["delivery_address"] || "",
+                landmark: rpcOrder["landmark"],
+                special_instructions: rpcOrder["special_instructions"],
+                subtotal_paise: rpcOrder["subtotal_paise"] || 0,
+                delivery_fee_paise: rpcOrder["delivery_fee_paise"] || 5000,
+                total_paise: rpcOrder["total_paise"] || 0,
+                created_at: rpcOrder["created_at"] || new Date().toISOString(),
+                items: Array.isArray(rpcOrder["items"]) ? rpcOrder["items"] : [],
+              };
+              setOrder(formatted);
+              setLiveStatus(formatted.status);
+              return;
+            }
+          } catch (rpcErr) {
+            console.warn("RPC get_customer_order failed:", rpcErr);
+          }
+        }
+
+        // 3. Direct select fallback safely
         let query = supabase.from("orders").select("*, order_items(*)");
         if (isUuid) {
           query = query.eq("id", activeId!);

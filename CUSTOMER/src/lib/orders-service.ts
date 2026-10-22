@@ -386,7 +386,15 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
     // 5. Persist to Supabase Orders
     let createdOrderId: string = crypto.randomUUID();
     try {
-      const { data: dbOrder, error: orderErr } = await supabase
+      let dbClient = supabase;
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        if (supabaseAdmin) dbClient = supabaseAdmin;
+      } catch {
+        // Fallback to client supabase if server admin client not initialized
+      }
+
+      const { error: orderErr } = await dbClient
         .from("orders")
         .insert({
           id: createdOrderId,
@@ -403,11 +411,7 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
           delivery_fee_paise: deliveryFeePaise,
           total_paise: totalPaise,
           razorpay_order_id: razorpayOrderId,
-        })
-        .select("id")
-        .maybeSingle();
-
-      if (dbOrder?.id) createdOrderId = dbOrder.id;
+        });
 
       if (!orderErr) {
         // Resolve menu item UUIDs to satisfy foreign key requirement
@@ -416,7 +420,7 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
 
         const dbMenuMap = new Map<string, string>();
         try {
-          const { data: dbItems } = await supabase.from("menu_items").select("id, name");
+          const { data: dbItems } = await dbClient.from("menu_items").select("id, name");
           if (dbItems) {
             for (const item of dbItems) {
               dbMenuMap.set(item.name.toLowerCase().trim(), item.id);
@@ -447,11 +451,13 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
           .filter((item) => Boolean(item.product_id));
 
         if (itemsToInsert.length > 0) {
-          const { error: itemErr } = await supabase.from("order_items").insert(itemsToInsert);
+          const { error: itemErr } = await dbClient.from("order_items").insert(itemsToInsert);
           if (itemErr) {
             console.warn("Could not insert order_items into Supabase:", itemErr.message);
           }
         }
+      } else {
+        console.warn("Supabase orders insert error:", orderErr);
       }
     } catch (err) {
       console.warn("Could not persist to Supabase orders table directly:", err);
@@ -611,8 +617,14 @@ export const verifyPaymentServerFn = createServerFn({ method: "POST" })
 
     // Update order status in Supabase safely (preventing 22P02 on order_number)
     try {
+      let dbClient = supabase;
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        if (supabaseAdmin) dbClient = supabaseAdmin;
+      } catch {}
+
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
-      let updateQuery = supabase
+      let updateQuery = dbClient
         .from("orders")
         .update({
           status: "new",
@@ -629,11 +641,11 @@ export const verifyPaymentServerFn = createServerFn({ method: "POST" })
       if (accessToken) {
         updateQuery = updateQuery.eq("access_token", accessToken);
       }
-      const { data: updatedDbOrder } = await updateQuery.select("id").maybeSingle();
+      await updateQuery;
 
-      const eventTargetId = updatedDbOrder?.id || (isUuid ? orderId : null);
+      const eventTargetId = isUuid ? orderId : null;
       if (eventTargetId) {
-        await supabase.from("order_status_events").insert({
+        await dbClient.from("order_status_events").insert({
           order_id: eventTargetId,
           status: "new",
           note: `Payment confirmed (${razorpayPaymentId})`,
@@ -691,12 +703,21 @@ export const getOrderDetailsServerFn = createServerFn({ method: "POST" })
 
     // Fallback to Supabase safely without throwing 22P02 on order_number
     try {
+      let dbClient = supabase;
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        if (supabaseAdmin) dbClient = supabaseAdmin;
+      } catch {}
+
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId);
-      let query = supabase.from("orders").select("*, order_items(*)");
+      let query = dbClient.from("orders").select("*, order_items(*)");
       if (isUuid) {
         query = query.eq("id", orderId);
       } else {
         query = query.eq("order_number", orderId);
+      }
+      if (accessToken) {
+        query = query.eq("access_token", accessToken);
       }
       const { data: rawOrder } = await query.maybeSingle();
 
