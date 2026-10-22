@@ -193,7 +193,7 @@ function Index() {
         <SectionTitle action={<ViewAll to="/combos" label="View All Combos" />}>
           <SplitText text="Combo Offers" delay={40} />
         </SectionTitle>
-        <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-3 md:px-0">
+        <div className="no-scrollbar -mx-4 flex snap-x gap-4 overflow-x-auto px-4 pb-2 md:mx-0 md:grid md:grid-cols-2 lg:grid-cols-4 md:px-0">
           {combos.map((c, idx) => (
             <AnimatedContent key={c.id} delay={idx * 80} className="w-80 shrink-0 snap-start md:w-auto">
               <ComboCard product={c} />

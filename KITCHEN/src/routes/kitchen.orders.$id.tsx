@@ -7,6 +7,7 @@ import { orderService } from "@/kitchen/services";
 import type { Order } from "@/kitchen/domain/types";
 import { STATUS_LABEL, TRANSITIONS, formatINR, formatTime } from "@/kitchen/domain/rules";
 import { ActionButton, PaymentBadge, StatusBadge } from "@/kitchen/components/ui";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/kitchen/orders/$id")({
   head: () => ({

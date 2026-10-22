@@ -10,14 +10,18 @@ describe("menu pricing", () => {
     expect(findVariant(f, "Large", "Peri Peri")?.price).toBe(129);
   });
   it("keeps combo and savings box prices", () => {
-    expect(getProduct("combo-1")!.variants[0]?.price).toBe(259);
-    expect(getProduct("combo-2")!.variants[0]?.price).toBe(389);
-    expect(getProduct("combo-3")!.variants[0]?.price).toBe(249);
+    expect(getProduct("combo-1")!.variants[0]?.price).toBe(229);
+    expect(getProduct("combo-2")!.variants[0]?.price).toBe(329);
+    expect(getProduct("combo-3")!.variants[0]?.price).toBe(239);
+    expect(getProduct("combo-4")!.variants[0]?.price).toBe(189);
     expect(getProduct("ultimate-savings-box")!.variants[0]?.price).toBe(829);
     expect(getProduct("saving-combo")!.variants[0]?.price).toBe(499);
   });
-  it("does not invent drink prices", () => {
-    expect(getProduct("pepsi")!.variants.every((v) => v.price === null)).toBe(true);
+  it("prices pepsi drinks properly", () => {
+    const p = getProduct("pepsi")!;
+    expect(findVariant(p, "Regular")?.price).toBe(20);
+    expect(findVariant(p, "Medium")?.price).toBe(30);
+    expect(findVariant(p, "Large")?.price).toBe(40);
   });
   it("merges same items and totals the cart", () => {
     const base = { key: "a", productId: "x", name: "X", variant: "M", price: 89, image: "" };
