@@ -278,6 +278,15 @@ export function createProductionOrderService(): KitchenOrderService {
           ]);
 
           emit({ type: "order_updated", order: updated });
+          if (typeof window !== "undefined") {
+            try {
+              supabase.channel("crunch-box-sync").send({
+                type: "broadcast",
+                event: "order_updated",
+                payload: { orderId: targetId, status: to },
+              });
+            } catch {}
+          }
           return updated;
         }
       } catch (err) {
@@ -459,6 +468,17 @@ export function createProductionOrderService(): KitchenOrderService {
           .upsert({ id: true, ...updateRow });
       } catch (err) {
         console.warn("Could not persist settings to Supabase:", err);
+      }
+
+      // 4. Instant multi-client broadcast via Supabase Realtime
+      if (typeof window !== "undefined") {
+        try {
+          supabase.channel("crunch-box-sync").send({
+            type: "broadcast",
+            event: "settings_updated",
+            payload: patch,
+          });
+        } catch {}
       }
 
       return this.getSettings();

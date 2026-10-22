@@ -5,6 +5,7 @@ import { inr } from "@/data/menu";
 import { site } from "@/data/site";
 import { useCart } from "@/lib/cart";
 import { PageHeading } from "@/components/Sections";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const Route = createFileRoute("/cart")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/cart")({
 
 function CartPage() {
   const { items, subtotal, setQty, remove, clear } = useCart();
+  const { deliveryFee, isOpen, acceptingOrders, reason, hours } = useBusinessStatus();
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted)
@@ -40,7 +42,7 @@ function CartPage() {
       </div>
     );
 
-  const total = subtotal + site.deliveryFee;
+  const total = subtotal + deliveryFee;
   return (
     <div className="mx-auto grid max-w-6xl gap-8 px-4 py-8 lg:grid-cols-[1fr_360px]">
       <div>
@@ -114,13 +116,18 @@ function CartPage() {
           </div>
           <div className="flex justify-between">
             <dt>Delivery</dt>
-            <dd>{site.deliveryFee ? inr(site.deliveryFee) : "Free"}</dd>
+            <dd>{deliveryFee ? inr(deliveryFee) : "Free"}</dd>
           </div>
           <div className="flex justify-between border-t pt-2 text-base font-bold">
             <dt>Total</dt>
             <dd className="text-primary">{inr(total)}</dd>
           </div>
         </dl>
+        {(!acceptingOrders || !isOpen) && (
+          <div className="mt-4 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs font-medium text-primary">
+            {reason || `Kitchen is currently closed. Operating hours: ${hours}`}
+          </div>
+        )}
         <Link
           to="/checkout"
           className="mt-5 block rounded-lg bg-primary py-3 text-center font-display uppercase text-primary-foreground hover:brightness-110"

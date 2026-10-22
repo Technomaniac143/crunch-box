@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowRight, Clock, Search, Timer } from "lucide-react";
 import { useState } from "react";
-import hero from "@/assets/images/hero.jpg";
+import hero from "@/assets/images/hero.webp";
 import { products, specialCombos, getProduct } from "@/data/menu";
 import { site } from "@/data/site";
 import { ProductCard } from "@/components/ProductCard";
@@ -18,6 +18,7 @@ import {
   TiltedCard,
   AnimatedContent,
 } from "@/components/reactbits";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,7 +27,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "French fries, loaded fries, fried chicken, rice bowls and combos. Open 6 PM – 3 AM.",
+          "French fries, loaded fries, fried chicken, rice bowls and combos delivered hot and fresh from Crunch Box.",
       },
       { property: "og:title", content: "Crunch Box — Crispy. Loaded. Irresistible." },
       {
@@ -41,6 +42,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const { hours, isOpen, acceptingOrders, reason } = useBusinessStatus();
   const popular = products.filter((p) => p.popular);
   const combos = specialCombos.map((id) => getProduct(id)!);
 
@@ -82,6 +84,13 @@ function Index() {
               <BlurText text="Hot, fresh, and delivered fast." delay={30} />
             </p>
 
+            {(!acceptingOrders || !isOpen) && (
+              <div className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 p-3 text-xs sm:text-sm font-medium text-primary">
+                <Clock className="h-4 w-4 shrink-0" />
+                <span>{reason || `Crunch Box is currently closed. Operating hours: ${hours}`}</span>
+              </div>
+            )}
+
             <div className="flex flex-wrap items-center gap-3 pt-2">
               <Magnet padding={30} magnetStrength={0.18}>
                 <Link
@@ -102,10 +111,13 @@ function Index() {
             </div>
 
             <div className="flex flex-wrap gap-4 text-sm font-semibold pt-2">
-              <span className="flex items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-3 py-1 shadow-xs">
-                <Clock className="h-4 w-4 text-primary" /> {site.hours}
+              <span className="flex items-center gap-2 rounded-full border border-border/80 bg-card/80 px-3.5 py-1.5 shadow-xs">
+                <span
+                  className={`inline-block h-2.5 w-2.5 rounded-full ${isOpen && acceptingOrders ? "bg-veg animate-pulse" : "bg-destructive"}`}
+                />
+                <Clock className="h-4 w-4 text-primary" /> {hours}
               </span>
-              <span className="flex items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-3 py-1 shadow-xs">
+              <span className="flex items-center gap-1.5 rounded-full border border-border/80 bg-card/80 px-3.5 py-1.5 shadow-xs">
                 <Timer className="h-4 w-4 text-primary" /> {site.deliveryPromise}
               </span>
             </div>

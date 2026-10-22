@@ -1,10 +1,11 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Menu, Search, ShoppingCart, X, Sparkles } from "lucide-react";
+import { Menu, Search, ShoppingCart, X, Sparkles, Clock } from "lucide-react";
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Logo } from "./Logo";
 import { useCart } from "@/lib/cart";
 import { Magnet } from "./reactbits/Magnet";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const navLinks = [
   { to: "/", label: "Home" },
@@ -28,6 +29,7 @@ export function Header() {
   const [mounted, setMounted] = useState(false);
   const [q, setQ] = useState("");
   const navigate = useNavigate();
+  const { isOpen, acceptingOrders, hours, reason } = useBusinessStatus();
 
   useEffect(() => {
     setMounted(true);
@@ -54,6 +56,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur-md">
+      {(!acceptingOrders || !isOpen) && (
+        <div className="bg-primary px-4 py-1.5 text-center text-xs font-semibold text-primary-foreground flex items-center justify-center gap-2">
+          <Clock className="h-3.5 w-3.5" />
+          <span>{reason || `Kitchen is closed · Operating hours: ${hours}`}</span>
+        </div>
+      )}
       <div className="mx-auto grid max-w-7xl grid-cols-[auto_1fr_auto] items-center gap-4 px-4 py-2 lg:flex lg:justify-between">
         <button
           className="p-2.5 rounded-xl text-foreground hover:bg-muted active:scale-90 transition-transform lg:hidden touch-manipulation"

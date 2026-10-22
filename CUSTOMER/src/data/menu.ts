@@ -1,12 +1,12 @@
-import fries from "@/assets/images/fries.jpg";
-import loaded from "@/assets/images/loaded.jpg";
-import popcorn from "@/assets/images/popcorn.jpg";
-import strips from "@/assets/images/strips.jpg";
-import lollipop from "@/assets/images/lollipop.jpg";
-import lays from "@/assets/images/lays.jpg";
-import ricebowl from "@/assets/images/ricebowl.jpg";
-import chickenbox from "@/assets/images/chickenbox.jpg";
-import cola from "@/assets/images/cola.jpg";
+import fries from "@/assets/images/fries.webp";
+import loaded from "@/assets/images/loaded.webp";
+import popcorn from "@/assets/images/popcorn.webp";
+import strips from "@/assets/images/strips.webp";
+import lollipop from "@/assets/images/lollipop.webp";
+import lays from "@/assets/images/lays.webp";
+import ricebowl from "@/assets/images/ricebowl.webp";
+import chickenbox from "@/assets/images/chickenbox.webp";
+import cola from "@/assets/images/cola.webp";
 
 export type CategoryId = "fries" | "loaded" | "chicken" | "rice" | "combos" | "drinks";
 

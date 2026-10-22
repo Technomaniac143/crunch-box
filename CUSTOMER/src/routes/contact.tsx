@@ -3,6 +3,7 @@ import { Clock, Mail, MapPin, Phone, ShieldCheck, Navigation, MessageCircle } fr
 import { PageHeading } from "@/components/Sections";
 import { site } from "@/data/site";
 import { SpotlightCard } from "@/components/reactbits";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/contact")({
 
 function Contact() {
   const c = site.contact;
+  const { hours, hoursLong } = useBusinessStatus();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 space-y-8">
@@ -84,14 +86,14 @@ function Contact() {
             </div>
             <div>
               <span className="text-xs font-semibold uppercase text-muted-foreground">Kitchen Timing</span>
-              <h2 className="text-xl font-bold text-foreground">{site.hours}</h2>
+              <h2 className="text-xl font-bold text-foreground">{hours}</h2>
             </div>
           </div>
 
           <div className="rounded-xl bg-muted/60 p-4 space-y-2">
-            <p className="text-sm font-semibold text-foreground">{site.hoursLong}</p>
+            <p className="text-sm font-semibold text-foreground">{hoursLong}</p>
             <p className="text-xs text-muted-foreground">
-              Hot fries and crispy sides served late night. Online orders accepted until 3:00 AM daily.
+              Hot fries and crispy sides served fresh during kitchen operating hours.
             </p>
           </div>
 

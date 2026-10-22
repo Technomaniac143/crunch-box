@@ -42,8 +42,9 @@ export const saveSharedSettingsServerFn = createServerFn({ method: "POST" })
     }
   });
 
-export const loadSharedSettingsServerFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<Partial<KitchenSettings> | null> => {
+export const loadSharedSettingsServerFn = createServerFn({ method: "GET" })
+  .validator((d?: { _t?: number }) => d)
+  .handler(async (): Promise<Partial<KitchenSettings> | null> => {
     try {
       const fs = await import("node:fs");
       const sharedFile = await resolveSharedFile("shared-settings.json");
@@ -54,12 +55,11 @@ export const loadSharedSettingsServerFn = createServerFn({ method: "GET" }).hand
       // Ignore
     }
     return null;
-  },
-);
+  });
 
 export async function getSharedSettings(): Promise<Partial<KitchenSettings> | null> {
   try {
-    return await loadSharedSettingsServerFn();
+    return await loadSharedSettingsServerFn({ data: { _t: Date.now() } });
   } catch {
     if (typeof process !== "undefined" && process.versions?.node) {
       try {
@@ -81,8 +81,9 @@ export async function getSharedSettings(): Promise<Partial<KitchenSettings> | nu
   }
 }
 
-export const loadSharedOrdersServerFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<any[]> => {
+export const loadSharedOrdersServerFn = createServerFn({ method: "GET" })
+  .validator((d?: { _t?: number }) => d)
+  .handler(async (): Promise<any[]> => {
     try {
       const fs = await import("node:fs");
       const sharedFile = await resolveSharedFile("shared-orders.json");
@@ -94,12 +95,11 @@ export const loadSharedOrdersServerFn = createServerFn({ method: "GET" }).handle
       console.warn("Could not load shared orders in Kitchen:", e);
     }
     return [];
-  },
-);
+  });
 
 export async function getSharedOrders(): Promise<any[]> {
   try {
-    return await loadSharedOrdersServerFn();
+    return await loadSharedOrdersServerFn({ data: { _t: Date.now() } });
   } catch {
     if (typeof process !== "undefined" && process.versions?.node) {
       try {

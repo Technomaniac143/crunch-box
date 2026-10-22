@@ -4,15 +4,24 @@ import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { OrderStatus, PaymentStatus } from "../domain/types";
 import { STATUS_LABEL } from "../domain/rules";
+import logoImg from "@/assets/images/logo-sm.webp";
 
 export function Logo({ className }: { className?: string }) {
   return (
-    <div className={cn("flex items-center gap-2", className)}>
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-gold bg-brand">
-        <span className="font-display text-sm leading-none text-gold">CB</span>
+    <div className={cn("flex items-center gap-2.5", className)}>
+      <div className="relative h-10 w-10 shrink-0 drop-shadow-sm">
+        <img
+          src={logoImg}
+          alt="Crunch Box"
+          width={40}
+          height={40}
+          className="h-full w-full object-contain select-none"
+          loading="eager"
+          decoding="async"
+        />
       </div>
-      <div className="min-w-0 leading-none">
-        <div className="font-display truncate text-lg font-bold text-brand">Crunch Box</div>
+      <div className="min-w-0 leading-tight">
+        <div className="font-display truncate text-lg font-bold text-foreground">Crunch Box</div>
         <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Kitchen</div>
       </div>
     </div>

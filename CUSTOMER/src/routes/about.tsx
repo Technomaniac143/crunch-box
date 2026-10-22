@@ -3,6 +3,7 @@ import { ShieldCheck, Award, MapPin, Sparkles, Clock, CheckCircle2 } from "lucid
 import { AboutBlock, Benefits } from "@/components/Sections";
 import { site } from "@/data/site";
 import { SpotlightCard, ShinyText } from "@/components/reactbits";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -18,7 +19,13 @@ export const Route = createFileRoute("/about")({
       { property: "og:type", content: "website" },
     ],
   }),
-  component: () => (
+  component: AboutPage,
+});
+
+function AboutPage() {
+  const { hours } = useBusinessStatus();
+
+  return (
     <div className="mx-auto max-w-7xl space-y-16 px-4 py-10">
       <AboutBlock showCta={false} />
 
@@ -102,9 +109,9 @@ export const Route = createFileRoute("/about")({
           {site.tagline}
         </p>
         <p className="mt-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-          Late Night Operations · Open Daily {site.hours} · OMR, Chennai
+          Open Daily {hours} · OMR, Chennai
         </p>
       </div>
     </div>
-  ),
-});
+  );
+}

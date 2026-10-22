@@ -14,6 +14,7 @@ import {
   DELIVERY_FEE_INR,
   type BusinessStatus,
 } from "@/lib/orders-service";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/checkout")({
   head: () => ({
@@ -82,7 +83,7 @@ function Checkout() {
 
   const errors = validateCheckout(f);
   const valid = Object.keys(errors).length === 0;
-  const deliveryFee = site.deliveryFee || DELIVERY_FEE_INR;
+  const deliveryFee = businessStatus?.deliveryFee ?? site.deliveryFee ?? DELIVERY_FEE_INR;
   const total = subtotal + deliveryFee;
 
   if (!mounted)
@@ -189,6 +190,25 @@ function Checkout() {
               });
               clear();
               toast.success("Payment successful!");
+
+              if (typeof window !== "undefined") {
+                try {
+                  if ("BroadcastChannel" in window) {
+                    const bc = new BroadcastChannel("crunch-box-sync");
+                    bc.postMessage({
+                      type: "order_created",
+                      payload: { id: result.orderId, orderNumber: result.orderNumber },
+                    });
+                    bc.close();
+                  }
+                  supabase.channel("crunch-box-sync").send({
+                    type: "broadcast",
+                    event: "order_created",
+                    payload: { id: result.orderId, orderNumber: result.orderNumber },
+                  });
+                } catch {}
+              }
+
               navigate({
                 to: "/order-success",
                 search: { order_id: result.orderId, token: result.accessToken },
@@ -236,6 +256,25 @@ function Checkout() {
           },
         });
         clear();
+
+        if (typeof window !== "undefined") {
+          try {
+            if ("BroadcastChannel" in window) {
+              const bc = new BroadcastChannel("crunch-box-sync");
+              bc.postMessage({
+                type: "order_created",
+                payload: { id: result.orderId, orderNumber: result.orderNumber },
+              });
+              bc.close();
+            }
+            supabase.channel("crunch-box-sync").send({
+              type: "broadcast",
+              event: "order_created",
+              payload: { id: result.orderId, orderNumber: result.orderNumber },
+            });
+          } catch {}
+        }
+
         navigate({
           to: "/order-success",
           search: { order_id: result.orderId, token: result.accessToken },

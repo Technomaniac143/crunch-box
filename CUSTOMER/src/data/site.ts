@@ -2,8 +2,8 @@
 export const site = {
   name: "Crunch Box",
   tagline: "Good Food. Great Vibes.",
-  hours: "6 PM – 3 AM",
-  hoursLong: "Monday – Sunday, 6:00 PM – 3:00 AM",
+  hours: "10 AM – 11 PM",
+  hoursLong: "Monday – Sunday, 10:00 AM – 11:00 PM",
   deliveryPromise: "20-minute delivery",
   deliveryFee: 50, // ₹50 per online order
   fssai: {

@@ -1,9 +1,9 @@
 {
   "acceptingOrders": true,
-  "openingTime": "10:00",
+  "openingTime": "09:00",
   "closingTime": "23:00",
   "deliveryFee": 50,
   "soundEnabled": false,
   "timezone": "Asia/Kolkata",
-  "updatedAt": "2026-10-18T14:46:32.692Z"
+  "updatedAt": "2026-10-19T11:06:57.839Z"
 }

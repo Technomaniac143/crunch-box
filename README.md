@@ -102,8 +102,12 @@ Both apps have pre-configured `.env` files in their respective folders for Supab
 - **`KITCHEN/.env`**:
   - `VITE_SUPABASE_URL`: Supabase project URL
   - `VITE_SUPABASE_PUBLISHABLE_KEY`: Public publishable key
+- **Root `.env` (Administrative & Smoke Tests)**:
+  - `SUPABASE_URL`: Supabase project URL
+  - `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEY`): Privileged Supabase key used strictly by backend tasks and the automated connectivity runner (`npm run smoke-test`). Never expose to client applications or commit to Git.
 
-> **Note:** Browser-visible variables are prefixed with `VITE_`. Server secrets should remain server-only without the `VITE_` prefix.
+> **Note:** Browser-visible variables are prefixed with `VITE_`. Server secrets should remain server-only without the `VITE_` prefix and must never be exposed to the browser.
+
 
 ---
 

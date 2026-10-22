@@ -31,6 +31,9 @@ export interface BusinessStatus {
   currentTimeIST: string;
   openingTime?: string | undefined;
   closingTime?: string | undefined;
+  deliveryFee?: number | undefined;
+  formattedHours?: string | undefined;
+  formattedHoursLong?: string | undefined;
   reason?: string | undefined;
 }
 
@@ -65,7 +68,7 @@ export function checkBusinessHours(
   if (openMinutes === closeMinutes) {
     isOpen = true;
   } else if (openMinutes < closeMinutes) {
-    // Same day window, e.g. 09:00 to 22:00
+    // Same day window, e.g. 10:00 to 23:00
     isOpen = currentMinutes >= openMinutes && currentMinutes < closeMinutes;
   } else {
     // Spans midnight, e.g. 16:00 to 03:00 or 18:00 to 03:00
@@ -89,17 +92,19 @@ export function checkBusinessHours(
 }
 
 /** Server function: Check current business status & hours */
-export const getBusinessStatusServerFn = createServerFn({ method: "GET" }).handler(
-  async (): Promise<BusinessStatus> => {
+export const getBusinessStatusServerFn = createServerFn({ method: "GET" })
+  .validator((d?: { _t?: number }) => d)
+  .handler(async (): Promise<BusinessStatus> => {
     let acceptingOrders = true;
-    let openingTime = "18:00";
-    let closingTime = "03:00";
+    let openingTime = "10:00";
+    let closingTime = "23:00";
+    let deliveryFee = 50;
 
     // 1. Try Supabase kitchen_business_settings
     try {
       const { data } = await supabase
         .from("kitchen_business_settings")
-        .select("accepting_orders, opening_time, closing_time")
+        .select("accepting_orders, opening_time, closing_time, delivery_fee")
         .eq("id", true)
         .maybeSingle();
 
@@ -109,6 +114,7 @@ export const getBusinessStatusServerFn = createServerFn({ method: "GET" }).handl
         }
         if (data.opening_time) openingTime = data.opening_time;
         if (data.closing_time) closingTime = data.closing_time;
+        if (typeof data.delivery_fee === "number") deliveryFee = data.delivery_fee;
       }
     } catch {
       // If table is not queried, default to shared/fallback
@@ -124,6 +130,7 @@ export const getBusinessStatusServerFn = createServerFn({ method: "GET" }).handl
         if (typeof parsed.acceptingOrders === "boolean") acceptingOrders = parsed.acceptingOrders;
         if (parsed.openingTime) openingTime = parsed.openingTime;
         if (parsed.closingTime) closingTime = parsed.closingTime;
+        if (typeof parsed.deliveryFee === "number") deliveryFee = parsed.deliveryFee;
       }
     } catch {
       // Ignore
@@ -134,6 +141,16 @@ export const getBusinessStatusServerFn = createServerFn({ method: "GET" }).handl
       openingTime,
       closingTime,
     );
+
+    const formatCleanHours = (openStr: string, closeStr: string) => {
+      const fmt = (t: string) => {
+        const [h = 0, m = 0] = t.split(":").map(Number);
+        const period = (h ?? 0) >= 12 ? "PM" : "AM";
+        const h12 = (h ?? 0) % 12 || 12;
+        return m === 0 ? `${h12} ${period}` : `${h12}:${m.toString().padStart(2, "0")} ${period}`;
+      };
+      return `${fmt(openStr)} – ${fmt(closeStr)}`;
+    };
 
     let reason: string | undefined;
     if (!acceptingOrders) {
@@ -148,6 +165,9 @@ export const getBusinessStatusServerFn = createServerFn({ method: "GET" }).handl
       currentTimeIST: timeIST,
       openingTime,
       closingTime,
+      deliveryFee,
+      formattedHours: formatCleanHours(openingTime, closingTime),
+      formattedHoursLong: `Monday – Sunday, ${openingFormatted} – ${closingFormatted}`,
       reason,
     };
   },
@@ -218,13 +238,14 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
 
     // 2. Validate operational status
     let acceptingOrders = true;
-    let openingTime = "18:00";
-    let closingTime = "03:00";
+    let openingTime = "10:00";
+    let closingTime = "23:00";
+    let deliveryFee = DELIVERY_FEE_INR;
 
     try {
       const { data: settings } = await supabase
         .from("kitchen_business_settings")
-        .select("accepting_orders, opening_time, closing_time")
+        .select("accepting_orders, opening_time, closing_time, delivery_fee")
         .eq("id", true)
         .maybeSingle();
       if (settings) {
@@ -233,6 +254,7 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
         }
         if (settings.opening_time) openingTime = settings.opening_time;
         if (settings.closing_time) closingTime = settings.closing_time;
+        if (typeof settings.delivery_fee === "number") deliveryFee = settings.delivery_fee;
       }
     } catch {
       // Fallback
@@ -247,6 +269,7 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
         if (typeof parsed.acceptingOrders === "boolean") acceptingOrders = parsed.acceptingOrders;
         if (parsed.openingTime) openingTime = parsed.openingTime;
         if (parsed.closingTime) closingTime = parsed.closingTime;
+        if (typeof parsed.deliveryFee === "number") deliveryFee = parsed.deliveryFee;
       }
     } catch {
       // Fallback
@@ -318,7 +341,8 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
       });
     }
 
-    const totalPaise = subtotalPaise + DELIVERY_FEE_PAISE;
+    const deliveryFeePaise = Math.round(deliveryFee * 100);
+    const totalPaise = subtotalPaise + deliveryFeePaise;
     const orderNumber = `CB-${Math.floor(1000 + Math.random() * 9000)}`;
     const accessToken = crypto.randomUUID();
 
@@ -376,7 +400,7 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
           landmark: customer.landmark?.trim() || null,
           special_instructions: customer.notes?.trim() || null,
           subtotal_paise: subtotalPaise,
-          delivery_fee_paise: DELIVERY_FEE_PAISE,
+          delivery_fee_paise: deliveryFeePaise,
           total_paise: totalPaise,
           razorpay_order_id: razorpayOrderId,
         })
@@ -456,12 +480,12 @@ export const createOrderServerFn = createServerFn({ method: "POST" })
         specialInstructions: customer.notes?.trim() || null,
         subtotal_paise: subtotalPaise,
         subtotalPaise,
-        delivery_fee_paise: DELIVERY_FEE_PAISE,
-        deliveryFeePaise: DELIVERY_FEE_PAISE,
+        delivery_fee_paise: deliveryFeePaise,
+        deliveryFeePaise: deliveryFeePaise,
         total_paise: totalPaise,
         totalPaise,
         subtotal: subtotalPaise / 100,
-        deliveryFee: DELIVERY_FEE_INR,
+        deliveryFee: deliveryFee,
         total: totalPaise / 100,
         razorpay_order_id: razorpayOrderId,
         razorpayOrderId,

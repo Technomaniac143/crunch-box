@@ -217,16 +217,49 @@ function SuccessPage() {
 
     void fetchOrder();
 
-    // Resource optimization: Only poll when document is active/visible
+    // Resource optimization: Fast 2.5s polling when document is active/visible
     const interval = setInterval(() => {
       if (!document.hidden) {
         void fetchOrder();
       }
-    }, 4000);
+    }, 2500);
 
-    // Subscribe to Realtime status updates if Supabase realtime is available
+    const onVisible = () => {
+      if (!document.hidden) {
+        void fetchOrder();
+      }
+    };
+    window.addEventListener("focus", onVisible);
+    document.addEventListener("visibilitychange", onVisible);
+
+    // 1. Cross-tab instant update via BroadcastChannel (0ms latency)
+    let bc: BroadcastChannel | null = null;
+    if (typeof window !== "undefined" && "BroadcastChannel" in window) {
+      try {
+        bc = new BroadcastChannel("crunch-box-sync");
+        bc.onmessage = (event) => {
+          if (event.data?.type === "order_updated" && event.data.payload) {
+            const { orderId, status } = event.data.payload;
+            if (orderId === activeId) {
+              setLiveStatus(status as OrderStatus);
+              setOrder((prev) => (prev ? { ...prev, status: status as OrderStatus } : prev));
+              void fetchOrder();
+            }
+          }
+        };
+      } catch {}
+    }
+
+    // 2. Subscribe to Supabase Realtime broadcast & Postgres CDC
     const channel = supabase
       .channel(`customer-order-${activeId}`)
+      .on("broadcast", { event: "order_updated" }, ({ payload }) => {
+        if (payload && payload.orderId === activeId) {
+          setLiveStatus(payload.status as OrderStatus);
+          setOrder((prev) => (prev ? { ...prev, status: payload.status as OrderStatus } : prev));
+          void fetchOrder();
+        }
+      })
       .on(
         "postgres_changes",
         {
@@ -246,7 +279,10 @@ function SuccessPage() {
       .subscribe();
 
     return () => {
+      if (bc) bc.close();
       clearInterval(interval);
+      window.removeEventListener("focus", onVisible);
+      document.removeEventListener("visibilitychange", onVisible);
       void supabase.removeChannel(channel);
     };
   }, [order_id, token]);

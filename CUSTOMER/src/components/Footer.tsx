@@ -4,9 +4,11 @@ import { categories } from "@/data/menu";
 import { navLinks } from "./Header";
 import { Logo } from "./Logo";
 import { ShieldCheck } from "lucide-react";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export function Footer() {
   const { phone, email, address } = site.contact;
+  const { hoursLong } = useBusinessStatus();
 
   return (
     <footer className="mt-16 bg-brand pb-24 text-brand-foreground lg:pb-0">
@@ -49,7 +51,7 @@ export function Footer() {
         </div>
         <div className="space-y-2 text-sm">
           <h3 className="mb-3 text-accent font-display text-base">Kitchen &amp; Contact</h3>
-          <p className="font-semibold text-accent/90">Open {site.hoursLong}</p>
+          <p className="font-semibold text-accent/90">Open {hoursLong}</p>
           {phone && (
             <p>
               <a href={`tel:${phone}`} className="hover:text-accent font-medium">

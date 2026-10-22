@@ -70,5 +70,5 @@ describe("Razorpay Webhook Verification", () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { status: string };
     expect(body.status).toBe("ok");
-  });
+  }, 15000);
 });

@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowRight, Award, Flame, HeartHandshake, Truck } from "lucide-react";
 import type { ReactNode } from "react";
-import loaded from "@/assets/images/loaded.jpg";
+import loaded from "@/assets/images/loaded.webp";
 
 export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
   return (

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PageHeading } from "@/components/Sections";
 import { site } from "@/data/site";
 import { ShieldCheck, FileText, Clock, MapPin } from "lucide-react";
+import { useBusinessStatus } from "@/lib/business-context";
 
 export const Route = createFileRoute("/terms")({
   head: () => ({
@@ -20,6 +21,7 @@ export const Route = createFileRoute("/terms")({
 });
 
 function TermsPage() {
+  const { hoursLong, deliveryFee } = useBusinessStatus();
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 space-y-8">
       <PageHeading
@@ -70,7 +72,7 @@ function TermsPage() {
             Crunch Box specializes in late-night food delivery operating during:
           </p>
           <div className="flex items-center gap-2 font-semibold text-foreground py-1">
-            <Clock className="h-4 w-4 text-primary" /> {site.hoursLong} (Indian Standard Time)
+            <Clock className="h-4 w-4 text-primary" /> {hoursLong} (Indian Standard Time)
           </div>
           <p className="text-muted-foreground text-xs">
             Orders can only be placed when our kitchen is active and accepting orders. We reserve the right to temporarily pause orders during severe weather, peak kitchen demand, or technical maintenance.
@@ -82,7 +84,7 @@ function TermsPage() {
           <h2 className="font-display text-xl font-bold text-brand">3. Menu, Pricing &amp; Taxes</h2>
           <ul className="list-disc list-inside space-y-1 text-muted-foreground">
             <li>All menu prices are displayed in Indian Rupees (INR ₹) and include applicable GST/taxes unless explicitly noted otherwise.</li>
-            <li>A fixed delivery fee of ₹{site.deliveryFee} is applied to all online delivery orders to cover logistics and packing.</li>
+            <li>A fixed delivery fee of ₹{deliveryFee} is applied to all online delivery orders to cover logistics and packing.</li>
             <li>Items are subject to availability. If a specific ingredient or variant is unavailable after order placement, our kitchen will notify you immediately.</li>
           </ul>
         </section>
